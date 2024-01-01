@@ -21,8 +21,6 @@
     (let ((texts (read-file #P"./test.c")))
       (write-file #P"./test.s" (code:code-gen (parser:c texts)))))
 
-
 (main)
-(handler-case
-    (run-program "make exec")
-  (error (c) (format t "~a" c)))
+(read-file #P"./test.s")
+

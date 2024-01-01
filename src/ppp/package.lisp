@@ -16,6 +16,7 @@
            #:take
            #:token
            #:many
+           #:many1
            #:&&
            #:||
            #:>>
@@ -23,6 +24,7 @@
            #:choice
            #:skip
            #:with
+           #:lazy
            #:whitespace
            #:whitespaces))
 

@@ -31,20 +31,59 @@
     "  ret"
     ""))
 
-(defun caliculate (token)
-  (cond ((equal (car token) [+])
-         (format nil "  add rbx, ~a" (cadr token)))
-        ((equal (car token) [-])
-         (format nil "  sub rbx, ~a" (cadr token)))))
+(defmethod code ((e (eql :num)) tail)
+  (list
+    (format nil "  push ~a" (car tail))))
+
+(defmethod code ((e (eql :+)) tail)
+  (list
+    (code (caar tail) (cdar tail))
+    (code (caadr tail) (cdadr tail))
+    (list
+      "  pop rdi"
+      "  pop rax"
+      "  add rax, rdi"
+      "  push rax")))
+
+(defmethod code ((e (eql :-)) tail)
+  (list
+    (code (caar tail) (cdar tail))
+    (code (caadr tail) (cdadr tail))
+    (list
+      "  pop rdi"
+      "  pop rax"
+      "  sub rax, rdi"
+      "  push rax")))
+
+(defmethod code ((e (eql :*)) tail)
+  (list
+    (code (caar tail) (cdar tail))
+    (code (caadr tail) (cdadr tail))
+    (list
+      "  pop rdi"
+      "  pop rax"
+      "  imul rax, rdi"
+      "  push rax")))
+
+(defmethod code ((e (eql :/)) tail)
+  (list
+    (code (caar tail) (cdar tail))
+    (code (caadr tail) (cdadr tail))
+    (list
+      "  pop rdi"
+      "  pop rax"
+      "  cqo"
+      "  idiv rdi"
+      "  push rax")))
 
 (defun main (token)
-  (flatten (list "main:"
-    (format nil "  mov rbx, ~a" (car token))
-    (loop for i in (cadr token)
-          collect (caliculate i))
-    "  mov rax, 0x01"
-    "  int 0x80"
-    "")))
+  (flatten (list
+             "main:"
+             (code (car token) (cdr token))
+             "  pop rbx"
+             "  mov rax, 0x01"
+             "  int 0x80"
+             "")))
 
 (defun header ()
   '(".intel_syntax noprefix"
@@ -59,6 +98,4 @@
   (apply #'show (concatenate 'list
                              (header)
                              (main token))))
-
-
 
