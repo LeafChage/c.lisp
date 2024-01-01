@@ -45,7 +45,7 @@
       (ppp:>>
         (ppp:&& (ppp:option (p-))
                 (primary))
-        (lambda (v) (node:minus '(:num 0) (cadr v)))))))
+        (lambda (v) (node:n- '(:num 0) (cadr v)))))))
 
 
 ;; mul     = unary ("*" unary | "/" unary)*
@@ -120,6 +120,7 @@
   (car (ppp.result::unwrap
          (ppp:parse (expr) txt))))
 
+;; (ppp:parse (expr) "1 * 2 + 2 * 2 * 4 * (1 + 2)")
 ;; (ppp:parse (expr) "1 * 2 + 2 * 2 * 4 * (1 + 2)")
 ;; (ppp:parse (expr) "1 >= 2")
 ;; (ppp:parse (expr) "2 <= 1")

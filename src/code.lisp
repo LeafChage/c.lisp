@@ -4,6 +4,7 @@
   (:use :cl
         :alexandria
         :c.parser)
+  (:IMPORT-FROM :c.node)
   (:EXPORT #:code-gen))
 (in-package :c.code)
 
@@ -31,55 +32,46 @@
     "  ret"
     ""))
 
-(defmethod code ((e (eql :num)) tail)
-  (list
-    (format nil "  push ~a" (car tail))))
+(defmethod code ((n node:[num]))
+  (list (format nil "  push ~a" (node:value n))))
 
-(defmethod code ((e (eql :+)) tail)
-  (list
-    (code (caar tail) (cdar tail))
-    (code (caadr tail) (cdadr tail))
-    (list
-      "  pop rdi"
-      "  pop rax"
-      "  add rax, rdi"
-      "  push rax")))
+(defmethod code ((n node:[n+]))
+  (list (code (node:left n))
+        (code (node:right n))
+        (list "  pop rdi"
+              "  pop rax"
+              "  add rax, rdi"
+              "  push rax")))
 
-(defmethod code ((e (eql :-)) tail)
-  (list
-    (code (caar tail) (cdar tail))
-    (code (caadr tail) (cdadr tail))
-    (list
-      "  pop rdi"
-      "  pop rax"
-      "  sub rax, rdi"
-      "  push rax")))
+(defmethod code ((n node:[n-]))
+  (list (code (node:left n))
+        (code (node:right n))
+        (list "  pop rdi"
+              "  pop rax"
+              "  sub rax, rdi"
+              "  push rax")))
 
-(defmethod code ((e (eql :*)) tail)
-  (list
-    (code (caar tail) (cdar tail))
-    (code (caadr tail) (cdadr tail))
-    (list
-      "  pop rdi"
-      "  pop rax"
-      "  imul rax, rdi"
-      "  push rax")))
+(defmethod code ((n node:[n*]))
+  (list (code (node:left n))
+        (code (node:right n))
+        (list "  pop rdi"
+              "  pop rax"
+              "  imul rax, rdi"
+              "  push rax")))
 
-(defmethod code ((e (eql :/)) tail)
-  (list
-    (code (caar tail) (cdar tail))
-    (code (caadr tail) (cdadr tail))
-    (list
-      "  pop rdi"
-      "  pop rax"
-      "  cqo"
-      "  idiv rdi"
-      "  push rax")))
+(defmethod code ((n node:[n/]))
+  (list (code (node:left n))
+        (code (node:right n))
+        (list "  pop rdi"
+              "  pop rax"
+              "  cqo"
+              "  idiv rdi"
+              "  push rax")))
 
 (defun main (token)
   (flatten (list
              "main:"
-             (code (car token) (cdr token))
+             (code token)
              "  pop rbx"
              "  mov rax, 0x01"
              "  int 0x80"

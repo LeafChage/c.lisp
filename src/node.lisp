@@ -2,24 +2,16 @@
 (defpackage c.node
   (:NICKNAMES node)
   (:use :cl)
-  (:EXPORT #:num
-           #:n+
-           #:rn+
-           #:n-
-           #:rn-
-           #:n/
-           #:rn/
-           #:n*
-           #:rn*
-           #:n==
-           #:rn==
-           #:n!=
-           #:rn!=
-           #:n<
-           #:rn<
-           #:n<=
-           #:rn<=
-           ))
+  (:EXPORT #:kind #:value #:left #:right
+           :[num] #:num
+           :[n+] #:n+ #:rn+
+           :[n-] #:n- #:rn-
+           :[n/] #:n/ #:rn/
+           :[n*] #:n* #:rn*
+           :[n==] #:n== #:rn==
+           :[n!=] #:n!= #:rn!=
+           :[n<] #:n< #:rn<
+           :[n<=] #:n<= #:rn<=))
 (in-package :c.node)
 
 (defclass branch ()
@@ -32,12 +24,14 @@
                  :value value))
 
 (defmacro define-branch-class (name tag)
+  (let ((cname (read-from-string
+                 (concatenate 'string "[" (symbol-name name) "]"))))
   `(progn
-     (defclass ,name (branch) ())
+     (defclass ,cname (branch) ())
      (defun ,name (value)
-       (make-instance (quote ,name)
+       (make-instance (quote ,cname)
                       :kind ,tag
-                      :value value))))
+                      :value value)))))
 
 (defmethod print-object ((obj branch) stream)
   (print-unreadable-object (obj stream :type t)
@@ -49,7 +43,6 @@
   ((kind :INITARG :kind :READER kind)
    (left :INITARG :left :READER left)
    (right :INITARG :right :READER right)))
-
 
 (defun node (kind left right)
   (make-instance 'node
@@ -93,6 +86,5 @@
 (define-node-class n!= :!=)
 (define-node-class n< :<)
 (define-node-class n<= :<=)
-
 
 ;; (macroexpand-1 '(define-node-class n<= :<=))
