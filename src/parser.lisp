@@ -6,24 +6,6 @@
   (:EXPORT #:c))
 (in-package :c.parser)
 
-;; (defparameter SEMI :semicolon)
-;; (defparameter [=]  :equal)
-;; (defparameter [!]  :exclamation)
-;; (defparameter [{]  :paren-m-left)
-;; (defparameter [}]  :paren-m-right)
-;; (defparameter [[]  :paren-l-left)
-;; (defparameter []]  :paren-l-right)
-
-;; (defparameter *MOD*           (ppp:>> (ppp:token "%") (lambda (_) [%])))
-;; (defparameter *SEMICOLON*     (ppp:>> (ppp:token ";") (lambda (_) SEMI)))
-;; (defparameter *EQUAL*         (ppp:>> (ppp:token "=") (lambda (_) [=])))
-;; (defparameter *EXCLAMATION*   (ppp:>> (ppp:token "!") (lambda (_) [!])))
-;; (defparameter *PAREN-M-LEFT*  (ppp:>> (ppp:token "{") (lambda (_) [{])))
-;; (defparameter *PAREN-M-RIGHT* (ppp:>> (ppp:token "}") (lambda (_) [}])))
-;; (defparameter *PAREN-L-LEFT*  (ppp:>> (ppp:token "[") (lambda (_) [[])))
-;; (defparameter *PAREN-L-RIGHT* (ppp:>> (ppp:token "]") (lambda (_) []])))
-
-
 (defun exwhitespace (p)
   (ppp:with (ppp:whitespaces) p))
 
