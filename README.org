@@ -1,5 +1,8 @@
-* C 
+* C
 
 ** Usage
 
 ** Installation
+
+** ref
+* https://en.wikipedia.org/wiki/X86_assembly_language

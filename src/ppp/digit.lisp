@@ -13,6 +13,5 @@
 (defun digit ()
   (make-instance 'digit-parser))
 
-(print (parse (digit) "123"))
-(print (parse (digit) ""))
-
+;; (print (parse (digit) "123"))
+;; (print (parse (digit) ""))

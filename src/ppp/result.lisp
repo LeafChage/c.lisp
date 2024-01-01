@@ -7,9 +7,12 @@
            #:success
            #:fail
            #:>>
+           #:ok?
            #:match=>
            #:result?
-           #:unwrap))
+           #:unwrap
+           #:error-composite
+           ))
 (in-package :ppp.result)
 
 (defclass result ()
@@ -43,6 +46,14 @@
 
 (defmethod result? ((r result)) t)
 (defmethod result? ((r t)) nil)
+
+(defmethod error-composite (&rest rs)
+  (let ((errors (loop for r in rs
+                      collect (val r))))
+    (fail (reduce (lambda (a b)
+              (format nil "~a / ~a" a b))
+            errors))))
+;; (error-composite (fail "hi") (fail "hi"))
 
 (defmethod unwrap ((r result))
   (if (ok? r)

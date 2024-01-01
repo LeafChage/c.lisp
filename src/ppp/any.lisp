@@ -7,4 +7,4 @@
 (defun any ()
   (make-instance 'any-parser))
 
-(print (parse (any) "123"))
+;; (print (parse (any) "123"))

@@ -1,43 +1,36 @@
-;; (defpackage c.parser.core
-;;   (:NICKNAMES :p)
-;;   (:use
-;;     :cl
-;;     :str
-;;     :c.parser.core.result
-;;     )
-;;   (:EXPORT
-;;     #:token
-;;     #:take
-;;     #:digit
-;;     #:||
-;;     #:&&
-;;     ))
-;; (in-package :c.parser.core)
-;;
-;; (defun >> (p fn)
-;;   (lambda (text)
-;;     (let ((r (funcall p text)))
-;;       (result:>> r fn))))
-;;
-;; (print (funcall (funcall
-;;          (>> (digit) (lambda (v) (+ 1 v)))
-;;          "123") "123"))
-;;
-;; (defun || (p1 p2)
-;;   ;; (print (let ((p (|| (token "12345") (take 5))))
-;;   ;;          (funcall p "hello123456")))
-;;   ;; (print (let ((p (|| (token "12345") (token "32424"))))
-;;   ;;          (funcall p "hello123456")))
-;;   (lambda (text)
-;;     (let ((p1-r (funcall p1 text)))
-;;       (result:match=>
-;;         p1-r
-;;         (lambda (v) (result:success v))
-;;         (lambda (e1)
-;;           (let ((p2-r (funcall p2 text)))
-;;             (result:match=>
-;;               p2-r
-;;               (lambda (v) (result:success v))
-;;               (lambda (e2)
-;;                 (result:fail (format t "~a / ~a" e1 e2))))))))))
-;;
+(in-package :ppp)
+
+(defclass and-parser (parser)
+  ((p1 :INITARG :p1)
+   (p2 :INITARG :p2)))
+
+(defmethod parse ((p and-parser) text)
+  (with-slots ((p1 p1)
+               (p2 p2))
+      p
+    (let ((r (parse p1 text)))
+      (result:match=>
+        r
+        (lambda (val1)
+          (let ((r2 (parse p2  (cadr val1))))
+            (result:match=>
+              r2
+              (lambda (val2)
+                (result:success (list
+                                  (list (car val1) (car val2))
+                                  (cadr val2))))
+              (lambda (e2) (result:fail e2)))))
+        (lambda (e1) (result:fail e1))))))
+
+(defmethod & ((p1 parser) (p2 parser))
+  (make-instance 'and-parser :p1 p1 :p2 p2))
+
+(defun && (&rest ps)
+  (cond ((> (list-length ps) 2) (& (car ps) (apply #'&& (cdr ps))))
+        ((> (list-length ps) 1) (& (car ps) (cadr ps)))
+        (t (error "argument error"))))
+
+;; (print (parse (&& (take 2) (any) (any)) "hello"))
+;; (print (parse (&& (digit) (token "e")) "1ello"))
+
+
