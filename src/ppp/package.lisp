@@ -25,6 +25,7 @@
            #:skip
            #:with
            #:lazy
+           #:option
            #:whitespace
            #:whitespaces))
 

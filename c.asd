@@ -21,6 +21,7 @@
                              (:file "devide-by" :depends-on ("package"))
                              (:file "choice" :depends-on ("package"))
                              (:file "skip" :depends-on ("package"))
+                             (:file "option" :depends-on ("package"))
                              (:file "with" :depends-on ("package"))
                              (:file "lazy" :depends-on ("package"))
                              (:file "defined" :depends-on ("package"))

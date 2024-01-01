@@ -50,13 +50,27 @@
               (ppp:&& (ppp:token "(") (ppp:lazy #'expr) (ppp:token ")"))
               (lambda (v) (caadr v))))))
 
-;; mul     = primary ("*" primary | "/" primary)*
+;; unary = ("+" | "-")? primary
+(defun unary ()
+  (exwhitespace
+    (ppp:choice
+      (ppp:>>
+        (ppp:&& (ppp:option (ppp:token "+"))
+                (primary))
+        (lambda (v) (cadr v)))
+      (ppp:>>
+        (ppp:&& (ppp:option (ppp:token "-"))
+                (primary))
+        (lambda (v) (list :- '(:num 0) (cadr v)))))))
+
+
+;; mul     = unary ("*" unary | "/" unary)*
 (defun mul ()
   (exwhitespace
     (ppp:>>
-      (ppp:&& (primary)
-              (ppp:many (ppp:|| (ppp:&& (multiple) (primary))
-                                (ppp:&& (devide) (primary)))))
+      (ppp:&& (unary)
+              (ppp:many (ppp:|| (ppp:&& (multiple) (unary))
+                                (ppp:&& (devide) (unary)))))
       (lambda (v) (reduce (lambda (a b) (list (car b) a (cadr b)))
                           (cons (car v) (cadr v)))))))
 
@@ -74,4 +88,4 @@
   (car (ppp.result::unwrap
          (ppp:parse (expr) txt))))
 
-(ppp:parse (expr) "1 + 2  +2 * 2 / 4 * (1 + 2)")
+;; (ppp:parse (expr) "1 + 2  +2 * 2 / 4 * (1 + 2)")
