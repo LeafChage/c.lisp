@@ -2,31 +2,33 @@
 (defpackage c.parser
   (:NICKNAMES :parser)
   (:use :cl)
-  (:IMPORT-FROM :ppp)
+  (:IMPORT-FROM :ppp
+                :c.node)
   (:EXPORT #:c))
 (in-package :c.parser)
 
-(defun exwhitespace (p)
+(defun skipw (p)
   (ppp:with (ppp:whitespaces) p))
 
-(defun reserved (target token)
-  (exwhitespace (ppp:>> (ppp:token target)
-                        (lambda (_) token) )))
-
-(defun plus () (reserved "+" :+))
-(defun minus () (reserved "-" :-))
-(defun devide () (reserved "/" :/))
-(defun multiple () (reserved "*" :*))
+(defun p+  () (skipw (ppp:token "+")))
+(defun p-  () (skipw (ppp:token "-")))
+(defun p/  () (skipw (ppp:token "/")))
+(defun p*  () (skipw (ppp:token "*")))
+(defun p== () (skipw (ppp:token "==")))
+(defun p!= () (skipw (ppp:token "!=")))
+(defun p<  () (skipw (ppp:token "<")))
+(defun p<= () (skipw (ppp:token "<=")))
+(defun p>  () (skipw (ppp:token ">")))
+(defun p>= () (skipw (ppp:token ">=")))
 
 (defun num ()
-  (exwhitespace
+  (skipw
     (ppp:>> (ppp:many1 (ppp:digit))
-            (lambda (v) (list :num
-                              (apply #'concatenate 'string v))))))
+            (lambda (v) (node:num (apply #'concatenate 'string v))))))
 
 ;; primary = num | "(" expr ")"
 (defun primary ()
-  (exwhitespace
+  (skipw
     (ppp:|| (num)
             (ppp:>>
               (ppp:&& (ppp:token "(") (ppp:lazy #'expr) (ppp:token ")"))
@@ -34,40 +36,91 @@
 
 ;; unary = ("+" | "-")? primary
 (defun unary ()
-  (exwhitespace
+  (skipw
     (ppp:choice
       (ppp:>>
-        (ppp:&& (ppp:option (ppp:token "+"))
+        (ppp:&& (ppp:option (p+))
                 (primary))
         (lambda (v) (cadr v)))
       (ppp:>>
-        (ppp:&& (ppp:option (ppp:token "-"))
+        (ppp:&& (ppp:option (p-))
                 (primary))
-        (lambda (v) (list :- '(:num 0) (cadr v)))))))
+        (lambda (v) (node:minus '(:num 0) (cadr v)))))))
 
 
 ;; mul     = unary ("*" unary | "/" unary)*
 (defun mul ()
-  (exwhitespace
-    (ppp:>>
-      (ppp:&& (unary)
-              (ppp:many (ppp:|| (ppp:&& (multiple) (unary))
-                                (ppp:&& (devide) (unary)))))
-      (lambda (v) (reduce (lambda (a b) (list (car b) a (cadr b)))
-                          (cons (car v) (cadr v)))))))
+  (skipw
+    (ppp:choice
+      (ppp:>>
+        (ppp:&& (unary)
+                (ppp:many1 (ppp:with (p/) (unary))))
+        (lambda (v) (reduce #'node:n/ (cons (car v) (cadr v)))))
+      (ppp:>>
+        (ppp:&& (unary)
+                (ppp:many1 (ppp:with (p*) (unary))))
+        (lambda (v) (reduce #'node:n* (cons (car v) (cadr v)))))
+      (unary))))
 
-;; expr = mul ("+" mul | "-" mul)*
-(defun expr ()
-  (exwhitespace
-    (ppp:>>
-      (ppp:&& (mul)
-              (ppp:many (ppp:|| (ppp:&& (plus) (mul))
-                                (ppp:&& (minus) (mul)))))
-      (lambda (v) (reduce (lambda (a b) (list (car b) a (cadr b)))
-                          (cons (car v) (cadr v)))))))
+;; add = mul ("+" mul | "-" mul)*
+(defun add ()
+  (skipw
+    (ppp:choice
+      (ppp:>>
+        (ppp:&& (mul)
+                (ppp:many1 (ppp:with (p+) (mul))))
+        (lambda (v) (reduce #'node:n+ (cons (car v) (cadr v)))))
+      (ppp:>>
+        (ppp:&& (mul)
+                (ppp:many1 (ppp:with (p-) (mul))))
+        (lambda (v) (reduce #'node:n- (cons (car v) (cadr v)))))
+      (mul))))
+
+;; relational = add ("<" add | "<=" add | ">" add | ">=" add)*
+(defun relational ()
+  (skipw
+    (ppp:choice
+      (ppp:>>
+        (ppp:&& (add)
+                (ppp:many1 (ppp:with (p<) (add))))
+        (lambda (v) (reduce #'node:n< (cons (car v) (cadr v)))))
+      (ppp:>>
+        (ppp:&& (add)
+                (ppp:many1 (ppp:with (p<=) (add))))
+        (lambda (v) (reduce #'node:n<= (cons (car v) (cadr v)))))
+      (ppp:>>
+        (ppp:&& (add)
+                (ppp:many1 (ppp:with (p>) (add))))
+        (lambda (v) (reduce #'node:rn< (cons (car v) (cadr v)))))
+      (ppp:>>
+        (ppp:&& (add)
+                (ppp:many1 (ppp:with (p>=) (add))))
+        (lambda (v) (reduce #'node:rn<= (cons (car v) (cadr v)))))
+      (add))))
+
+;; equality = relational ("==" relational | "!=" relational)*
+(defun equality ()
+  (skipw
+    (ppp:choice
+      (ppp:>>
+        (ppp:&& (relational)
+                (ppp:many1 (ppp:with (p==) (relational))))
+        (lambda (v) (reduce #'node:n== (cons (car v) (cadr v)))))
+      (ppp:>>
+        (ppp:&& (relational)
+                (ppp:many1 (ppp:with (p!=) (relational))))
+        (lambda (v) (reduce #'node:n!= (cons (car v) (cadr v)))))
+      (relational))))
+
+;; expr       = equality
+(defun expr()
+    (skipw (equality)))
 
 (defun c (txt)
   (car (ppp.result::unwrap
          (ppp:parse (expr) txt))))
 
-;; (ppp:parse (expr) "1 + 2  +2 * 2 / 4 * (1 + 2)")
+;; (ppp:parse (expr) "1 * 2 + 2 * 2 * 4 * (1 + 2)")
+;; (ppp:parse (expr) "1 >= 2")
+;; (ppp:parse (expr) "2 <= 1")
+

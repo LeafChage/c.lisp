@@ -38,7 +38,8 @@
   :components ((:module "src"
                 :components
                 ((:file "main" :depends-on ("code" "parser"))
-                 (:file "parser")
+                 (:file "parser" :DEPENDS-ON ("node"))
+                 (:file "node")
                  (:file "code" :depends-on ("parser")))))
   :description ""
   :in-order-to ((test-op (test-op "c/tests"))))
