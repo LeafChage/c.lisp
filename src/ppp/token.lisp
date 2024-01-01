@@ -15,6 +15,6 @@
 (defun token (target)
   (make-instance 'token-parser :target target))
 
-(print (parse (token "token") "token token"))
+;; (print (parse (token "token") "token token"))
 
 

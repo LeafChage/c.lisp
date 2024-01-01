@@ -12,6 +12,6 @@
 (defun letter ()
   (make-instance 'letter-parser))
 
-(print (parse (letter) "123"))
-(print (parse (letter) "hello"))
-(print (parse (letter) "Hello"))
+;; (print (parse (letter) "123"))
+;; (print (parse (letter) "hello"))
+;; (print (parse (letter) "Hello"))

@@ -45,7 +45,7 @@
       (ppp:>>
         (ppp:&& (ppp:option (p-))
                 (primary))
-        (lambda (v) (node:n- '(:num 0) (cadr v)))))))
+        (lambda (v) (node:n- (node:num 0) (cadr v)))))))
 
 
 ;; mul     = unary ("*" unary | "/" unary)*

@@ -12,5 +12,5 @@
 (defun take (n)
   (make-instance 'take-parser :length n))
 
-(print (let ((p (take 3)))
-         (parse p "token token")))
+;; (print (let ((p (take 3)))
+;;          (parse p "token token")))
