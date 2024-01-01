@@ -12,7 +12,7 @@
                       (result:match=> (parse child (cadr v))
                                       (lambda (v2)
                                         (result:success (list
-                                                          (util:flatten (list (car v) (car v2)))
+                                                          (flatten (list (car v) (car v2)))
                                                           (cadr v2))))
                                       #'result:fail))
                     #'result:fail)))

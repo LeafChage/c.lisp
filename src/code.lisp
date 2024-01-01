@@ -1,7 +1,9 @@
 (in-package :cl-user)
 (defpackage c.code
   (:NICKNAMES :code)
-  (:use :cl)
+  (:use :cl
+        :alexandria
+        :c.parser)
   (:EXPORT #:code-gen))
 (in-package :c.code)
 
@@ -29,12 +31,20 @@
     "  ret"
     ""))
 
-(defun main (n)
-  (list "main:"
-    (format nil "  mov rbx, ~a" n)
+(defun caliculate (token)
+  (cond ((equal (car token) [+])
+         (format nil "  add rbx, ~a" (cadr token)))
+        ((equal (car token) [-])
+         (format nil "  sub rbx, ~a" (cadr token)))))
+
+(defun main (token)
+  (flatten (list "main:"
+    (format nil "  mov rbx, ~a" (car token))
+    (loop for i in (cadr token)
+          collect (caliculate i))
     "  mov rax, 0x01"
     "  int 0x80"
-    ""))
+    "")))
 
 (defun header ()
   '(".intel_syntax noprefix"
@@ -48,7 +58,7 @@
 (defun code-gen (token)
   (apply #'show (concatenate 'list
                              (header)
-                             (main (car token)))))
+                             (main token))))
 
 
 

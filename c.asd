@@ -2,7 +2,7 @@
   :version "0.0.1"
   :author ""
   :license ""
-  :depends-on ("str")
+  :depends-on ("str" "alexandria")
   :components ((:module "src/ppp"
                 :components ((:file "util")
                              (:file "result" :depends-on ("util"))
@@ -20,6 +20,7 @@
                              (:file "devide-by" :depends-on ("package"))
                              (:file "choice" :depends-on ("package"))
                              (:file "skip" :depends-on ("package"))
+                             (:file "with" :depends-on ("package"))
                              (:file "defined" :depends-on ("package"))
                              )))
   :description ""
@@ -30,12 +31,12 @@
   :version "0.0.1"
   :author ""
   :license ""
-  :depends-on ("ppp" "uiop")
+  :depends-on ("ppp" "uiop"  "alexandria")
   :components ((:module "src"
                 :components
                 ((:file "main" :depends-on ("code" "parser"))
                  (:file "parser")
-                 (:file "code"))))
+                 (:file "code" :depends-on ("parser")))))
   :description ""
   :in-order-to ((test-op (test-op "c/tests"))))
 

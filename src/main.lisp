@@ -23,7 +23,6 @@
 
 
 (main)
-
 (handler-case
     (run-program "make exec")
   (error (c) (format t "~a" c)))

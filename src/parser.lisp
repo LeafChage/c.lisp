@@ -3,7 +3,19 @@
   (:NICKNAMES :parser)
   (:use :cl)
   (:IMPORT-FROM :ppp)
-  (:EXPORT #:c))
+  (:EXPORT #:c
+           :[+]
+           :[-]
+           :[/]
+           :[*]
+           :[%]
+           :SEMI
+           :[=]
+           :[!]
+           :[{]
+           :[}]
+           :[[]
+           :[]]))
 (in-package :c.parser)
 
 (defparameter [+]  :plus)
@@ -19,8 +31,8 @@
 (defparameter [[]  :paren-l-left)
 (defparameter []]  :paren-l-right)
 
-(defun type-token (token)
-  (:type . token))
+;; (defun type-token (token)
+;;   (:type . token))
 
 (defparameter *PLUS*          (ppp:>> (ppp:token "+") (lambda (_) [+])))
 (defparameter *MINUS*         (ppp:>> (ppp:token "-") (lambda (_) [-])))
@@ -42,9 +54,15 @@
           (lambda (v) (apply #'concatenate 'string v))))
 
 (defparameter *NUMBER*   (ppp:>> (ppp:many (ppp:digit))
-                                (lambda (v) (apply #'concatenate 'string v))))
+                                 (lambda (v) (apply #'concatenate 'string v))))
 (defun c (txt)
-  (ppp.result::unwrap (ppp:parse *NUMBER* txt)))
+  (car (ppp.result::unwrap
+         (ppp:parse
+           (ppp:&& *NUMBER*
+                   (ppp:many (ppp:&&
+                               (ppp:with (ppp:whitespaces) (ppp:choice *PLUS* *MINUS*))
+                               (ppp:with (ppp:whitespaces) *NUMBER*))))
+           txt))))
 
 ;; (print (ppp:parse (ppp:devide-by *NUMBER* (ppp:choice
 ;;                                             *PLUS*

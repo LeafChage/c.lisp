@@ -1,7 +1,8 @@
 (in-package :cl-user)
 (defpackage ppp
   (:NICKNAMES :ppp)
-  (:use :cl)
+  (:use :cl
+        :alexandria)
   (:IMPORT-FROM
     :ppp.util
     :ppp.result
@@ -21,6 +22,7 @@
            #:devide-by
            #:choice
            #:skip
+           #:with
            #:whitespace
            #:whitespaces))
 
