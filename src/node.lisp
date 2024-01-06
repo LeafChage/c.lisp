@@ -3,15 +3,17 @@
   (:NICKNAMES node)
   (:use :cl)
   (:EXPORT #:kind #:value #:left #:right
-           :[num] #:num
-           :[n+] #:n+ #:rn+
-           :[n-] #:n- #:rn-
-           :[n/] #:n/ #:rn/
-           :[n*] #:n* #:rn*
-           :[n==] #:n== #:rn==
-           :[n!=] #:n!= #:rn!=
-           :[n<] #:n< #:rn<
-           :[n<=] #:n<= #:rn<=))
+           :[num]  #:num
+           :[ident] #:ident
+           :[n+]   #:n+  #:rn+
+           :[n-]   #:n-  #:rn-
+           :[n/]   #:n/  #:rn/
+           :[n*]   #:n*  #:rn*
+           :[n==]  #:n== #:rn==
+           :[n!=]  #:n!= #:rn!=
+           :[n<]   #:n<  #:rn<
+           :[n<=]  #:n<= #:rn<=
+           :[n=]  #:n= #:rn=))
 (in-package :c.node)
 
 (defclass branch ()
@@ -78,6 +80,7 @@
 
 
 (define-branch-class num :num)
+(define-branch-class ident :ident)
 (define-node-class n+ :+)
 (define-node-class n- :-)
 (define-node-class n/ :/)
@@ -86,5 +89,6 @@
 (define-node-class n!= :!=)
 (define-node-class n< :<)
 (define-node-class n<= :<=)
+(define-node-class n= :=)
 
 ;; (macroexpand-1 '(define-node-class n<= :<=))

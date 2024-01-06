@@ -1,4 +1,7 @@
-(let ((my-project-path (merge-pathnames "project/c/" (user-homedir-pathname))))
-  (pushnew my-project-path asdf:*central-registry* :test #'equal))
-
+(let ((packages '("project/c/"
+                  "project/c/pigeon/"
+                  "project/c/ppp/")))
+  (loop for p in packages
+        do (let ((path (merge-pathnames  p (user-homedir-pathname))))
+          (pushnew path asdf:*central-registry* :test #'equal))))
 

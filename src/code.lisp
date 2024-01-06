@@ -2,8 +2,7 @@
 (defpackage c.code
   (:NICKNAMES :code)
   (:use :cl
-        :alexandria
-        :c.parser)
+        :alexandria)
   (:IMPORT-FROM :c.node)
   (:EXPORT #:code-gen))
 (in-package :c.code)
@@ -33,6 +32,9 @@
     ""))
 
 (defmethod code ((n node:[num]))
+  (list (format nil "push ~a" (node:value n))))
+
+(defmethod code ((n node:[n=]))
   (list (format nil "push ~a" (node:value n))))
 
 (defmethod code ((n node:[n<]))

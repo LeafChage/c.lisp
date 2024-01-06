@@ -2,9 +2,8 @@
 (defpackage c
   (:use :cl
         :uiop)
-  (:IMPORT-FROM
-    :c.code
-    :c.parser))
+  (:IMPORT-FROM :c.code)
+  (:IMPORT-FROM :c.parser))
 (in-package :c)
 
 (defun read-file (file-name)
@@ -18,9 +17,11 @@
     (format stream "~a" text)))
 
 (defun main()
-    (let ((texts (read-file #P"./test.c")))
-      (write-file #P"./test.s" (code:code-gen (parser:c texts)))))
+    (let* ((texts (read-file #P"./test.c"))
+           (parsed (parser:c texts))
+           (c (code:code-gen parsed)))
+      (write-file #P"./test.s" c)
+      c))
 
-(main)
-(read-file #P"./test.s")
 
+;; (main)
