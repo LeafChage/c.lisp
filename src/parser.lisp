@@ -11,20 +11,15 @@
 (defun skipw (p)
   (ppp:with (ppp:whitespaces) p))
 
-(defparameter |p+|  (skipw (ppp:token "+")))
-(defparameter |p-|  (skipw (ppp:token "-")))
-(defparameter |p/|  (skipw (ppp:token "/")))
-(defparameter |p*|  (skipw (ppp:token "*")))
-(defparameter |p==| (skipw (ppp:token "==")))
-(defparameter |p!=| (skipw (ppp:token "!=")))
-(defparameter |p<|  (skipw (ppp:token "<")))
-(defparameter |p<=| (skipw (ppp:token "<=")))
-(defparameter |p>|  (skipw (ppp:token ">")))
-(defparameter |p>=| (skipw (ppp:token ">=")))
-(defparameter |p=|  (skipw (ppp:token "=")))
-(defparameter |p;|  (skipw (ppp:token ";")))
-(defparameter |p(|  (skipw (ppp:token "(")))
-(defparameter |p)|  (skipw (ppp:token ")")))
+(defmacro define-token-parser (&rest tokens)
+  `(progn
+     ,@(loop for token
+             in tokens
+             collect (let ((name (read-from-string
+                                     (concatenate 'string "|p" token "|"))))
+                       `(defparameter ,name
+                          (skipw (ppp:token ,token)))))))
+(define-token-parser "+" "-" "/" "*" "==" "!=" "<" "<=" ">" ">=" "=" ";" "(" ")")
 
 (defparameter num (skipw (ppp:-> (ppp:many1 (ppp:digit))
                                  (lambda (v) (node:num (apply #'concatenate 'string v))))))
@@ -137,10 +132,10 @@
 
 (defun c (txt)
   (car (car (result::unwrap
-         (ppp:parse (program) txt)))))
+              (ppp:parse (program) txt)))))
 
 ;; (ppp:parse (program) "1 = 1+2;")
-;; (ppp:parse (program) "1+2;")
+(ppp:parse (program) "1+2;")
 ;; (ppp:parse (program) "a = 1 + 2 + 3;")
 ;; (ppp:parse (expr) "1 >= 2")
 ;; (ppp:parse (expr) "2 <= 1")
