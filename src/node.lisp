@@ -3,6 +3,7 @@
   (:NICKNAMES node)
   (:use :cl)
   (:EXPORT #:kind #:value #:left #:right
+           #:is-addressable
            :[num]  #:num
            :[ident] #:ident
            :[n+]   #:n+  #:rn+
@@ -77,8 +78,6 @@
                         :left right
                         :right left)))))
 
-
-
 (define-branch-class num :num)
 (define-branch-class ident :ident)
 (define-node-class n+ :+)
@@ -91,4 +90,9 @@
 (define-node-class n<= :<=)
 (define-node-class n= :=)
 
+(defgeneric is-addressable (node)
+  (:method ((node [ident])) t)
+  (:method ((node t)) nil))
+
 ;; (macroexpand-1 '(define-node-class n<= :<=))
+

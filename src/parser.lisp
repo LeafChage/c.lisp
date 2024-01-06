@@ -117,7 +117,7 @@
 (defun assign ()
   (ppp:choice
     (ppp:->
-      (ppp:&& (equality)
+      (ppp:&& (ppp:check (equality) #'node:is-addressable)
               (ppp:with |p=| (ppp:lazy #'assign)))
       (lambda (v) (node:n= (car v) (cadr v))))
     (equality)))
@@ -139,6 +139,7 @@
   (car (car (result::unwrap
          (ppp:parse (program) txt)))))
 
+;; (ppp:parse (program) "1 = 1+2;")
 ;; (ppp:parse (program) "1+2;")
 ;; (ppp:parse (program) "a = 1 + 2 + 3;")
 ;; (ppp:parse (expr) "1 >= 2")
